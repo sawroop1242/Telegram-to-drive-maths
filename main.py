@@ -9,10 +9,10 @@ api_id = int(os.environ['API_ID'])
 api_hash = os.environ['API_HASH']
 session_string = os.environ['TELEGRAM_SESSION']
 
-channel_id = -1003928462535
+channel_id = -3780239942
 
 # The path where GitHub Actions will mount your Google Drive
-save_path = '/content/drive/MyDrive/Telegram_Archive/Maths/Armbh_betch/'
+save_path = '/content/drive/MyDrive/Telegram_Archive/Maths/live_betch/'
 os.makedirs(save_path, exist_ok=True)
 
 async def main():
