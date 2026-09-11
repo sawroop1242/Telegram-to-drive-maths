@@ -1,4 +1,4 @@
-from telethon import TelegramClient
+qfrom telethon import TelegramClient
 from telethon.sessions import StringSession
 import os
 import time
@@ -9,10 +9,10 @@ api_id = int(os.environ['API_ID'])
 api_hash = os.environ['API_HASH']
 session_string = os.environ['TELEGRAM_SESSION']
 
-channel_id = -1003711164317
+channel_id = -1004303944698/626
 
 # The path where GitHub Actions will mount your Google Drive
-save_path = '/content/drive/MyDrive/Telegram_Archive/Maths/spartan/'
+save_path = '/content/drive/MyDrive/Telegram_Archive/Maths/Bhutesh_sir/'
 os.makedirs(save_path, exist_ok=True)
 
 async def main():
