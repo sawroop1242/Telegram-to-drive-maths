@@ -1,4 +1,4 @@
-qfrom telethon import TelegramClient
+from telethon import TelegramClient
 from telethon.sessions import StringSession
 import os
 import time
