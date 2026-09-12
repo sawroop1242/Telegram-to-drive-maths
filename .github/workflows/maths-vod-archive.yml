@@ -13,7 +13,7 @@ on:
           - VIDEO
           - PDF
       limit:
-        description: "Maximum CSV entries (0 = all)"
+        description: "Maximum manifest entries (0 = all)"
         required: false
         default: "0"
         type: string
@@ -49,6 +49,17 @@ jobs:
           REMOTE="${GDRIVE_REMOTE:-gdrive1}"
           rclone about "${REMOTE}:"
 
+      - name: Validate embedded 765-entry manifest
+        run: |
+          python - <<'PY'
+          from vod_manifest import load_rows
+          rows = load_rows()
+          assert len(rows) == 765, len(rows)
+          assert sum(r['Type'] == 'VIDEO' for r in rows) == 508
+          assert sum(r['Type'] == 'PDF' for r in rows) == 257
+          print('Manifest validated: 765 entries (508 VIDEO, 257 PDF)')
+          PY
+
       - name: Download and upload Maths VOD
         env:
           GDRIVE_REMOTE: ${{ vars.GDRIVE_REMOTE }}
@@ -59,6 +70,5 @@ jobs:
           HTTP_TIMEOUT: "60"
         run: |
           python archive.py \
-            --csv Maths_VOD_all_links.csv \
             --only "${{ inputs.only }}" \
             --limit "${{ inputs.limit }}"
