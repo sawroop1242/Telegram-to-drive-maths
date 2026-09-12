@@ -1,0 +1,64 @@
+name: Archive Maths VOD to Google Drive
+
+on:
+  workflow_dispatch:
+    inputs:
+      only:
+        description: "Download type"
+        required: true
+        default: "ALL"
+        type: choice
+        options:
+          - ALL
+          - VIDEO
+          - PDF
+      limit:
+        description: "Maximum CSV entries (0 = all)"
+        required: false
+        default: "0"
+        type: string
+
+jobs:
+  archive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install ffmpeg, rclone and Python dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg rclone
+          python -m pip install -r requirements.txt
+
+      - name: Restore rclone config
+        env:
+          RCLONE_CONFIG_B64: ${{ secrets.RCLONE_CONFIG_B64 }}
+        run: |
+          test -n "$RCLONE_CONFIG_B64" || { echo "RCLONE_CONFIG_B64 secret is missing"; exit 1; }
+          mkdir -p "$HOME/.config/rclone"
+          echo "$RCLONE_CONFIG_B64" | base64 -d > "$HOME/.config/rclone/rclone.conf"
+          chmod 600 "$HOME/.config/rclone/rclone.conf"
+          rclone listremotes
+
+      - name: Verify Google Drive remote
+        env:
+          GDRIVE_REMOTE: ${{ vars.GDRIVE_REMOTE }}
+        run: |
+          REMOTE="${GDRIVE_REMOTE:-gdrive1}"
+          rclone about "${REMOTE}:"
+
+      - name: Download and upload Maths VOD
+        env:
+          GDRIVE_REMOTE: ${{ vars.GDRIVE_REMOTE }}
+          GDRIVE_ROOT: ${{ vars.GDRIVE_ROOT }}
+          RCLONE_TRANSFERS: "2"
+          RCLONE_CHECKERS: "4"
+          RETRIES: "4"
+          HTTP_TIMEOUT: "60"
+        run: |
+          python archive.py \
+            --csv Maths_VOD_all_links.csv \
+            --only "${{ inputs.only }}" \
+            --limit "${{ inputs.limit }}"
